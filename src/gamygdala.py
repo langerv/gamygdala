@@ -99,7 +99,7 @@ class Gamygdala:
             agent.print_relations(None)
 
     '''
-    * Facilitator to set the gain for the whole set of agents known to TUDelft.Gamygdala.
+    * Facilitator to set the gain for the whole set of agents known to Gamygdala.
     * For more realistic, complex games, you would typically set the gain for each agent type separately, to finetune the intensity of the response.
     * @method set_gain
     * @param {double} gain The gain value [0 and 20].
@@ -168,13 +168,12 @@ class Gamygdala:
     but only if the affected agent (the one owning the goal) == affected_agent
     this is sometimes needed for efficiency, if you as a game developer know that particular agents can never appraise an event, then you can force Gamygdala to only look at a subset of agents.
     Gamygdala assumes that the affected_agent is indeed the only goal owner affected, that the belief is well-formed, and will not perform any checks, nor use Gamygdala's list of known goals to find other agents that share this goal (!!!)
-    :param belief: The current event, in the form of a Belief object, to be appraised
-    :param affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
+    @param belief: The current event, in the form of a Belief object, to be appraised
+    @param affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
     """
     
     def appraise(self, belief, affected_agent=None):
         if affected_agent is None:
-
             # check all
             if self.debug:
                 print(belief)
