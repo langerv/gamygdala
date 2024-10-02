@@ -193,15 +193,16 @@ class Gamygdala:
                 current_goal = self.get_goal_by_name(goal_name)
 
                 if current_goal is not None:
+
                     # the goal exists, appraise it
                     utility = current_goal.utility
-
                     delta_likelihood = self.calculate_delta_likelihood(current_goal, belief.goal_congruences[i], belief.likelihood, belief.is_incremental)
-
                     desirability = delta_likelihood * utility
+                    #desirability = belief.goal_congruences[i] * utility
 
                     if self.debug:
-                        print(f'Evaluated goal: {current_goal.name}({utility}, {delta_likelihood:.2f})')
+                    #    print(f'Evaluated goal: {current_goal.name} : (utility = {utility}, delta_likelihood = {delta_likelihood:.2f}, desirability = {desirability:.2f})')
+                        print(f"Desirability = {desirability:.2f}")
 
                     # now find the owners, and update their emotional states
                     for agent in self.agents:
@@ -210,10 +211,8 @@ class Gamygdala:
 
                             if self.debug:
                                 print(f'....owned by {owner.name}')
-                                print(f"current_goal likelihood = {current_goal.likelihood}")
                             
                             self.evaluate_internal_emotion(utility, delta_likelihood, current_goal.likelihood, owner)
-
                             self.agent_actions(owner.name, belief.causal_agent_name, owner.name, desirability, utility, delta_likelihood)
 
                             # now check if anyone has a relation to this goal owner, and update the social emotions accordingly.
@@ -291,21 +290,20 @@ class Gamygdala:
                 new_likelihood = old_likelihood + likelihood * congruence
                 new_likelihood = max(min(new_likelihood, 1), -1)
             else:
-                print("here")
                 new_likelihood = (congruence * likelihood + 1.0) / 2.0
 
         goal.likelihood = new_likelihood
+        if self.debug:
+            print(f"Updated Goal likelihood = {new_likelihood:.2f}")
 
         if old_likelihood is not None:
-
             if self.debug:
-                print(f"Goal likelihood: old = {old_likelihood:.2f} ; new = {new_likelihood - old_likelihood:.2f}")
-
+                print(f"Goal Delta likelihood = {new_likelihood - old_likelihood:.2f}")
             return new_likelihood - old_likelihood
+        
         else:
             if self.debug:
                 print(f"Goal likelihood: new = {new_likelihood:.2f}")
-
             return new_likelihood
        
     def evaluate_internal_emotion(self, utility, delta_likelihood, likelihood, agent):
@@ -320,9 +318,11 @@ class Gamygdala:
             positive = delta_likelihood < 0
 
         if 0 < likelihood < 1:
+            print("0 < likelihood < 1")
             emotion.append('hope' if positive else 'fear')
 
         elif likelihood == 1:
+            print("likelihood = 1")
             if utility >= 0:
                 if delta_likelihood < 0.5:
                     emotion.append('satisfaction')
@@ -336,6 +336,7 @@ class Gamygdala:
                 emotion.append('distress')
 
         elif likelihood == 0:
+            print("likelihood = 0")
             if utility >= 0:
                 if delta_likelihood > 0.5:
                     emotion.append('disappointment')
@@ -349,6 +350,10 @@ class Gamygdala:
                 emotion.append('joy')
 
         intensity = abs(utility * delta_likelihood)
+
+        if self.debug:
+            print(f"Emotion intensity = {intensity:.2f}")
+
         if intensity != 0:
             for emotion_name in emotion:
                 agent.update_emotional_state(Emotion(emotion_name, intensity))
