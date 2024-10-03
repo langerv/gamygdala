@@ -307,15 +307,32 @@ class Gamygdala:
             return new_likelihood
        
     def evaluate_internal_emotion(self, utility, delta_likelihood, likelihood, agent):
+        # Goal:
+        # - utility
+        # - likelihood
+        # - delta_likelihood
         # This method evaluates the event in terms of internal emotions that do not need relations to exist, such as hope, fear, etc.
         positive = False
         intensity = 0
         emotion = []
 
+        '''
         if utility >= 0:
             positive = delta_likelihood >= 0
         else:
             positive = delta_likelihood < 0
+        '''
+
+        if utility >= 0:
+            if delta_likelihood >= 0:
+                positive = True
+            else:
+                positive = False
+        else:
+            if delta_likelihood >= 0:
+                positive = False
+            else:
+                positive = True
 
         if 0 < likelihood < 1:
             print("0 < likelihood < 1")
