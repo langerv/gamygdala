@@ -193,7 +193,6 @@ class Gamygdala:
                 current_goal = self.get_goal_by_name(goal_name)
 
                 if current_goal is not None:
-
                     # the goal exists, appraise it
                     utility = current_goal.utility
                     delta_likelihood = self.calculate_delta_likelihood(current_goal, belief.goal_congruences[i], belief.likelihood, belief.is_incremental)
@@ -307,32 +306,16 @@ class Gamygdala:
             return new_likelihood
        
     def evaluate_internal_emotion(self, utility, delta_likelihood, likelihood, agent):
-        # Goal:
-        # - utility
-        # - likelihood
-        # - delta_likelihood
         # This method evaluates the event in terms of internal emotions that do not need relations to exist, such as hope, fear, etc.
+       
         positive = False
         intensity = 0
         emotion = []
 
-        '''
         if utility >= 0:
             positive = delta_likelihood >= 0
         else:
             positive = delta_likelihood < 0
-        '''
-
-        if utility >= 0:
-            if delta_likelihood >= 0:
-                positive = True
-            else:
-                positive = False
-        else:
-            if delta_likelihood >= 0:
-                positive = False
-            else:
-                positive = True
 
         if 0 < likelihood < 1:
             print("0 < likelihood < 1")
@@ -343,13 +326,10 @@ class Gamygdala:
             if utility >= 0:
                 if delta_likelihood < 0.5:
                     emotion.append('satisfaction')
-
                 emotion.append('joy')
-
             else:
                 if delta_likelihood < 0.5:
                     emotion.append('fear-confirmed')
-
                 emotion.append('distress')
 
         elif likelihood == 0:
@@ -357,13 +337,10 @@ class Gamygdala:
             if utility >= 0:
                 if delta_likelihood > 0.5:
                     emotion.append('disappointment')
-
                 emotion.append('distress')
-
             else:
                 if delta_likelihood > 0.5:
                     emotion.append('relief')
-
                 emotion.append('joy')
 
         intensity = abs(utility * delta_likelihood)
