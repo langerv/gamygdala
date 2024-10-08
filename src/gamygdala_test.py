@@ -16,9 +16,21 @@ class TestEmotionEngine(unittest.TestCase):
         goal = em.create_goal_for_agent(agent.name, 'village destroyed', -0.9)
         self.assertIsNotNone(goal)
 
+        #em.start_decay(100)
+        em.set_decay(0.4, em.exponential_decay)
+
         print()
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
 
+        em.decay_all()
+        em.decay_all()
+        em.decay_all()
+        em.decay_all()
+        em.decay_all()
+
+        # If the likelihood of en event = 0, then it will have no effect. 
+        # Here we configure an event to be very likely (e.g. 1 = definite), with congruence to the goal of -1.
+        # That way, the goal likelyhood will be updated towards the goal not being met, and as the goal has a utility of -0.9, that should generate relief.
         print()
         em.appraise_belief(1.0, agent.name, [goal.name], [-1.0])
 

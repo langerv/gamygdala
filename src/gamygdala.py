@@ -131,7 +131,6 @@ class Gamygdala:
         import threading
         threading.Timer(time_ms / 1000, self.decay_all).start()
 
-
     '''
     ///////////////////////////////////////////////////////////////////////
     //Below this is more detailed gamygdala stuff to use it more flexibly.
@@ -171,7 +170,6 @@ class Gamygdala:
     @param belief: The current event, in the form of a Belief object, to be appraised
     @param affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
     """
-    
     def appraise(self, belief, affected_agent=None):
         if affected_agent is None:
             # check all
