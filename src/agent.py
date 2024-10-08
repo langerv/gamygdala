@@ -155,6 +155,8 @@ class Agent:
             if new_intensity < 0:
                 del self.internal_state[i]
             else:
+                print(f"Intensity = {state.intensity:.2f} ; New Intensity = {new_intensity:.2f}")
+                #self.internal_state[i].intensity = new_intensity
                 state.intensity = new_intensity
 
         # Decay all current relations

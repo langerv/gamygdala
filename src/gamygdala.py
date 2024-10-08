@@ -1,20 +1,24 @@
 import time
 import math
-
 from agent import Agent
 from belief import Belief
 from goal import Goal
 from emotion import Emotion
 
+'''
+Gamydala emotion engine
+Python Port
+Original code: https://github.com/broekens/gamygdala
+'''
 class Gamygdala:
-    def __init__(self, debug=False):
+    def __init__(self):
         self.agents = []
         self.goals = []
         self.decay_function = self.exponential_decay
         self.decay_factor = 0.8
         self.last_millis = int(time.time() * 1000)
         self.millis_passed = 0
-        self.debug = debug
+        self.debug = False
 
     '''
     * A facilitator method that creates a new Agent and registers it for you
@@ -113,7 +117,7 @@ class Gamygdala:
     * It sets the decay factor and type for emotional decay, so that an emotion will slowly get lower in intensity.
     * Whenever decayAll is called, all emotions for all agents are decayed according to the factor and function set here.
     * @method set_decay
-    * @param {double} decay_factor The decayfactor used. A factor of 1 means no decay, a factor 
+    * @param {double} decay_factor The decay factor used. A factor of 1 means no decay, a factor 
     * @param {function} decay_function The decay function to be used. Choose between linearDecay or exponentialDecay (see the corresponding methods)
     '''
     def set_decay(self, decay_factor, decay_function):
@@ -261,12 +265,6 @@ class Gamygdala:
         if self.debug:
             self.print_all_emotions(False)
             # self.print_all_emotions(True)
-
-    def decay_all(self):
-        self.millis_passed = int(time.time() * 1000) - self.last_millis
-        self.last_millis = int(time.time() * 1000)
-        for agent in self.agents:
-            agent.decay(self)
 
     def calculate_delta_likelihood(self, goal, congruence, belief_likelihood, is_incremental):
         # Defines the change in a goal's likelihood due to the congruence and likelihood of a current event.
@@ -427,6 +425,16 @@ class Gamygdala:
                             emotion.intensity = abs(utility * delta_likelihood * relation.like)
                             relation.add_emotion(emotion)
                             causal_agent.update_emotional_state(emotion)  # also add relation emotion to the emotional state
+
+    '''
+    Decay methods
+    '''
+    def decay_all(self):
+        print("tick")
+        self.millis_passed = int(time.time() * 1000) - self.last_millis
+        self.last_millis = int(time.time() * 1000)
+        for agent in self.agents:
+            agent.decay(self)
 
     def linear_decay(self, value):
         return value - self.decay_factor * (self.millis_passed / 1000)
