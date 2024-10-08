@@ -20,7 +20,7 @@ class TestEmotionEngine(unittest.TestCase):
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
 
         print()
-        em.appraise_belief(0.0, agent.name, [goal.name], [-1.0])
+        em.appraise_belief(1.0, agent.name, [goal.name], [-1.0])
 
 if __name__ == "__main__":
     unittest.main()

@@ -270,14 +270,15 @@ class Gamygdala:
         for agent in self.agents:
             agent.decay(self)
 
-    def calculate_delta_likelihood(self, goal, congruence, likelihood, is_incremental):
+    def calculate_delta_likelihood(self, goal, congruence, belief_likelihood, is_incremental):
         # Defines the change in a goal's likelihood due to the congruence and likelihood of a current event.
         # We cope with two types of beliefs: incremental and absolute beliefs. Incrementals have their likelihood added to the goal, absolute define the current likelihood of the goal
         # And two types of goals: maintenance and achievement. If an achievement goal (the default) is -1 or 1, we can't change it any more (unless externally and explicitly by changing the goal.likelihood).
         old_likelihood = goal.likelihood
         new_likelihood = None
 
-        if not goal.is_maintenance_goal and (old_likelihood >= 1 or old_likelihood <= -1):
+        #if not goal.is_maintenance_goal and (old_likelihood >= 1 or old_likelihood <= -1):
+        if not goal.is_maintenance_goal and (old_likelihood >= 1 or old_likelihood <= 0):
             return 0
 
         if hasattr(goal, 'calculate_likelihood') and callable(goal.calculate_likelihood):
@@ -286,10 +287,11 @@ class Gamygdala:
         else:
             # Otherwise use the event encoded updates
             if is_incremental:
-                new_likelihood = old_likelihood + likelihood * congruence
-                new_likelihood = max(min(new_likelihood, 1), -1)
+                new_likelihood = old_likelihood + belief_likelihood * congruence
+                # Joost fix 07/10/2024 : new_likelihood = max(min(new_likelihood, 1), -1)
+                new_likelihood = max(min(new_likelihood, 1), 0)
             else:
-                new_likelihood = (congruence * likelihood + 1.0) / 2.0
+                new_likelihood = (congruence * belief_likelihood + 1.0) / 2.0
 
         goal.likelihood = new_likelihood
         if self.debug:
@@ -299,15 +301,13 @@ class Gamygdala:
             if self.debug:
                 print(f"Goal Delta likelihood = {new_likelihood - old_likelihood:.2f}")
             return new_likelihood - old_likelihood
-        
         else:
             if self.debug:
                 print(f"Goal likelihood: new = {new_likelihood:.2f}")
             return new_likelihood
        
-    def evaluate_internal_emotion(self, utility, delta_likelihood, likelihood, agent):
+    def evaluate_internal_emotion(self, utility, delta_likelihood, goal_likelihood, agent):
         # This method evaluates the event in terms of internal emotions that do not need relations to exist, such as hope, fear, etc.
-       
         positive = False
         intensity = 0
         emotion = []
@@ -317,12 +317,10 @@ class Gamygdala:
         else:
             positive = delta_likelihood < 0
 
-        if 0 < likelihood < 1:
-            print("0 < likelihood < 1")
+        if 0 < goal_likelihood < 1:
             emotion.append('hope' if positive else 'fear')
 
-        elif likelihood == 1:
-            print("likelihood = 1")
+        elif goal_likelihood == 1:
             if utility >= 0:
                 if delta_likelihood < 0.5:
                     emotion.append('satisfaction')
@@ -332,14 +330,15 @@ class Gamygdala:
                     emotion.append('fear-confirmed')
                 emotion.append('distress')
 
-        elif likelihood == 0:
-            print("likelihood = 0")
+        elif goal_likelihood == 0:
             if utility >= 0:
-                if delta_likelihood > 0.5:
+                # Joost fix 07/10/2024 for if delta_likelihood > 0.5:
+                if delta_likelihood < -0.5:
                     emotion.append('disappointment')
                 emotion.append('distress')
             else:
-                if delta_likelihood > 0.5:
+                # Joost fix 07/10/2024 for if delta_likelihood > 0.5:
+                if delta_likelihood < -0.5:
                     emotion.append('relief')
                 emotion.append('joy')
 

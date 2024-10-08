@@ -11,6 +11,6 @@ class Goal:
     def __init__(self, name, utility, is_maintenance_goal=False):
         self.name = name
         self.utility = utility
-        self.likelihood = 0.0  #0.5
+        self.likelihood = 0.5
         self.calculate_likelihood = False
         self.is_maintenance_goal = is_maintenance_goal
