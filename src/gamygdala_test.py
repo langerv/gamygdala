@@ -33,7 +33,7 @@ class TestEmotionEngine(unittest.TestCase):
 
         # Decay emotion and test deletion
         print("\nProcessing decay for 3s... ")
-        for i in range(0, 30):
+        for _ in range(0, 30):
             em.start_decay(100) # decay every 100ms
             time.sleep(0.1)
         else:

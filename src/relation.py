@@ -9,7 +9,6 @@ Params:
 * target_name: The agent who is the target of the relation.
 * like: the relation [-1 and 1].
 '''
-
 class Relation:
     def __init__(self, target_name, like):
         self.agent_name = target_name

@@ -68,7 +68,7 @@ class Agent:
             self.gain = gain
 
     def appraise(self, belief):
-        self.gamygdala_instance.appraise(belief, self)
+        self.gamygdala_instance.appraise_agent(belief, self)
 
     def update_emotional_state(self, emotion):
         for internal_emotion in self.internal_state:
