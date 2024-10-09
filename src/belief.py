@@ -15,7 +15,7 @@ Params:
 '''
 class Belief:
     def __init__(self, likelihood, causal_agent_name, affected_goal_names, goal_congruences, is_incremental=False):
-        self.is_incremental = is_incremental  # incremental evidence enforces gamygdala to use the likelihood as delta, i.e., it will add or subtract this belief's likelihood from the goal likelihood instead of using the belief as "state" defining the absolute likelihood
+        self.is_incremental = is_incremental
         self.likelihood = max(-1, min(1, likelihood))
         self.causal_agent_name = causal_agent_name
         self.affected_goal_names = []

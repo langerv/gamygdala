@@ -23,19 +23,21 @@ class TestEmotionEngine(unittest.TestCase):
         em.set_decay(0.1, em.exponential_decay)
         #em.set_decay(0.1, em.linear_decay)
 
-        # Appraise first belief
+        em.set_gain(10)
+
+        # Create first belief event
         print()
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
 
         # Decay emotio states
-        print("Processing decay for 2s... ")
-        for i in range(0,20):
+        print("\nProcessing decay for 2s... ")
+        for i in range(0, 20):
             em.start_decay(100) # decay every 100ms
             time.sleep(0.1)
         else:
             print()
 
-        # Appraise second belief
+        # Create second belief event
         # Here the villager has the belief that the destruction of the village is not gonna to happen (Belief is set to 1 and Congruence to goal = -1, blocking the goal)
         # If the likelihood of en event = 0, then it will have no effect. 
         # Here we configure an event to be very likely (e.g. 1 = definite), with congruence to the goal of -1.

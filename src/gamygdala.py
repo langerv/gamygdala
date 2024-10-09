@@ -165,8 +165,9 @@ class Gamygdala:
                 return goal
         return None
 
-    """
-    Appraise Mecanism
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Appraise
     This method is the main emotional interpretation logic entry point. It performs the complete appraisal of a single event (belief) for all agents (affected_agent=None) or for only one agent (affected_agent=True)
     if affected_agent is set, then the complete appraisal logic is executed including the effect on relations (possibly influencing the emotional state of other agents),
     but only if the affected agent (the one owning the goal) == affected_agent
@@ -174,7 +175,9 @@ class Gamygdala:
     Gamygdala assumes that the affected_agent is indeed the only goal owner affected, that the belief is well-formed, and will not perform any checks, nor use Gamygdala's list of known goals to find other agents that share this goal (!!!)
     @param belief: The current event, in the form of a Belief object, to be appraised
     @param affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
-    """
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
+
     def appraise(self, belief, affected_agent=None):
         if affected_agent is None:
             # check all
@@ -302,13 +305,19 @@ class Gamygdala:
             if self.debug:
                 print(f"Goal likelihood: new = {new_likelihood:.2f}")
             return new_likelihood
-       
+    
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Internal Consequence of Events
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def evaluate_internal_emotion(self, utility, delta_likelihood, goal_likelihood, agent):
         # This method evaluates the event in terms of internal emotions that do not need relations to exist, such as hope, fear, etc.
         positive = False
         intensity = 0
         emotion = []
 
+        # if goal likelihood is not confirmed, emotions is between hope and fear depending on utility
         if utility >= 0:
             positive = delta_likelihood >= 0
         else:
@@ -317,7 +326,7 @@ class Gamygdala:
         if 0 < goal_likelihood < 1:
             emotion.append('hope' if positive else 'fear')
 
-        # if goal likelihood == 1 (desired) emotion between joy and distress depends on utility sign
+        # if goal likelihood == 1 (desired) emotion between joy and distress depends on utility
         elif goal_likelihood == 1:
             if utility >= 0:
                 if delta_likelihood < 0.5:
@@ -328,7 +337,7 @@ class Gamygdala:
                     emotion.append('fear-confirmed')
                 emotion.append('distress')
 
-        # if goal likelihood == 0 (not desired) emotion between distress and joy depends on utility sign
+        # if goal likelihood == 0 (not desired) emotion between distress and joy depends on utility
         elif goal_likelihood == 0:
             if utility >= 0:
                 # Joost fix 07/10/2024 for if delta_likelihood > 0.5:
@@ -350,6 +359,11 @@ class Gamygdala:
             for emotion_name in emotion:
                 agent.update_emotional_state(Emotion(emotion_name, intensity))
 
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Social Consequence of Events
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def evaluate_social_emotion(self, utility, desirability, delta_likelihood, relation, agent):
         # This function is used to evaluate happy-for, pity, gloating or resentment.
         # Emotions that arise when we evaluate events that affect goals of others.
@@ -379,7 +393,11 @@ class Gamygdala:
             relation.add_emotion(emotion)
             agent.update_emotional_state(emotion)  # also add relation emotion to the emotional state
 
-
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Actions of Agents
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def agent_actions(self, affected_name, causal_name, self_name, desirability, utility, delta_likelihood):
         if causal_name is not None and causal_name != '':
             # If the causal agent is null or empty, then we assume the event was not caused by an agent.
@@ -390,7 +408,7 @@ class Gamygdala:
             emotion = Emotion(None, None)
                 
             if affected_name == self_name and self_name != causal_name:
-                # Case one 
+                # Case one : SELF-OTHER
                 if desirability >= 0:
                     emotion.name = 'gratitude'
                 else:
@@ -409,13 +427,13 @@ class Gamygdala:
                 self_agent.update_emotional_state(emotion)  # also add relation emotion to the emotional state
                 
             elif affected_name == self_name and self_name == causal_name:
-                    # Case two
-                    # This case is not included in TUDelft.Gamygdala.
+                    # Case two : SELF-SELF
+                    # This case is not included in Gamygdala.
                     # This should include pride and shame
                     pass
                 
             elif affected_name != self_name and causal_name == self_name:
-                # Case three
+                # Case three : OTHER-SELF
                 causal_agent = self.get_agent_by_name(causal_name)
                 if causal_agent.has_relation_with(affected_name):
                     relation = causal_agent.get_relation(affected_name)
@@ -433,7 +451,9 @@ class Gamygdala:
                             causal_agent.update_emotional_state(emotion)  # also add relation emotion to the emotional state
 
     '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Decay methods
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     '''
     def decay_all(self):
         self.millis_passed = int(time.time() * 1000) - self.last_millis

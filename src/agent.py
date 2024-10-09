@@ -1,3 +1,4 @@
+import math
 from emotion import Emotion
 from relation import Relation
 
@@ -153,10 +154,10 @@ class Agent:
         for i, state in enumerate(self.internal_state):
             new_intensity = gamygdala_instance.decay_function(state.intensity)
 
-            if new_intensity < 0:
+            if new_intensity < 0 or math.isclose(new_intensity, 0.0, abs_tol=0.01):
                 del self.internal_state[i]
                 if gamygdala_instance.debug:
-                    print(f"Deleting {state.name.upper()}")
+                    print(f"\nDeleting {state.name.upper()}")
             else:
                 #self.internal_state[i].intensity = new_intensity
                 state.intensity = new_intensity
