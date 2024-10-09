@@ -152,12 +152,16 @@ class Agent:
         # Use a for loop with enumerate to iterate over internal states
         for i, state in enumerate(self.internal_state):
             new_intensity = gamygdala_instance.decay_function(state.intensity)
+
             if new_intensity < 0:
                 del self.internal_state[i]
+                if gamygdala_instance.debug:
+                    print(f"Deleting {state.name.upper()}")
             else:
-                print(f"Intensity = {state.intensity:.2f} ; New Intensity = {new_intensity:.2f}")
                 #self.internal_state[i].intensity = new_intensity
                 state.intensity = new_intensity
+                if gamygdala_instance.debug:
+                    print(f"\r{state.name.upper()} intensity = {new_intensity:.2f}", end='', flush=True)
 
         # Decay all current relations
         for relation in self.current_relations:

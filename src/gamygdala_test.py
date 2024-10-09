@@ -19,13 +19,21 @@ class TestEmotionEngine(unittest.TestCase):
         goal = em.create_goal_for_agent(agent.name, 'village destroyed', -0.9)
         self.assertIsNotNone(goal)
 
-        # Decay strategy
-        em.start_decay(10)
-        em.set_decay(0.4, em.exponential_decay)
+        # Test decay for 2s
+        em.set_decay(0.1, em.exponential_decay)
+        #em.set_decay(0.1, em.linear_decay)
 
         # Appraise first belief
         print()
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
+
+        # Decay emotio states
+        print("Processing decay for 2s... ")
+        for i in range(0,20):
+            em.start_decay(100) # decay every 100ms
+            time.sleep(0.1)
+        else:
+            print()
 
         # Appraise second belief
         # Here the villager has the belief that the destruction of the village is not gonna to happen (Belief is set to 1 and Congruence to goal = -1, blocking the goal)
