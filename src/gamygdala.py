@@ -267,8 +267,7 @@ class Gamygdala:
 
         # print the emotions to the console for debugging
         if self.debug:
-            self.print_all_emotions(False)
-            # self.print_all_emotions(True)
+            self.print_all_emotions(True)
 
     def calculate_delta_likelihood(self, goal, congruence, belief_likelihood, is_incremental):
         # Defines the change in a goal's likelihood due to the congruence and likelihood of a current event.

@@ -29,6 +29,12 @@ class Agent:
             'remorse': [-0.57, 0.28, -0.34]
         }
 
+
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Goal Managament
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def add_goal(self, goal):
     	# no copy, cause we need to keep the ref,
 	    # one goal can be shared between agents so that changes to this one goal are reflected in the emotions of all agents sharing the same goal
@@ -50,6 +56,11 @@ class Agent:
                 return goal
         return None
 
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    appraise
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def set_gain(self, gain):
         if gain <= 0 or gain > 20:
             print('Error: gain factor for appraisal integration must be between 0 and 20')
@@ -81,6 +92,23 @@ class Agent:
         else:
             return self.internal_state
 
+    def print_emotional_state(self, use_gain):
+        output = f"{self.name} feels "
+        emotional_state = self.get_emotional_state(use_gain)
+        emotion_strings = []
+
+        for emotion in emotional_state:
+            emotion_strings.append(f"{emotion.name.upper()} : {emotion.intensity:.2f}")
+        
+        if emotion_strings:
+            output += ", ".join(emotion_strings)
+            print(output)
+    
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    PAD management
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def get_pad_state(self, use_gain):
         pad = [0, 0, 0]
 
@@ -99,18 +127,11 @@ class Agent:
         else:
             return pad
 
-    def print_emotional_state(self, use_gain):
-        output = f"{self.name} feels "
-        emotional_state = self.get_emotional_state(use_gain)
-        emotion_strings = []
-
-        for emotion in emotional_state:
-            emotion_strings.append(f"{emotion.name.upper()} : {emotion.intensity:.2f}")
-        
-        if emotion_strings:
-            output += ", ".join(emotion_strings)
-            print(output)
-    
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Relations management
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def update_relation(self, agent_name, like):
         if not self.has_relation_with(agent_name):
             # This relation does not exist, just add it.
@@ -149,12 +170,17 @@ class Agent:
         if found:
             print(output)
 
+    '''
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Decay 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
     def decay(self, gamygdala_instance):
         # Use a for loop with enumerate to iterate over internal states
         for i, state in enumerate(self.internal_state):
             new_intensity = gamygdala_instance.decay_function(state.intensity)
 
-            if new_intensity < 0 or math.isclose(new_intensity, 0.0, abs_tol=0.01):
+            if new_intensity < 0 or math.isclose(new_intensity, 0.0, abs_tol=0.001):
                 del self.internal_state[i]
                 if gamygdala_instance.debug:
                     print(f"\nDeleting {state.name.upper()}")
