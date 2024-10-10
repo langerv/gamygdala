@@ -1,16 +1,26 @@
 import unittest
 import time
 from gamygdala import Gamygdala
+from relation import Relation
 
 class TestEmotionEngine(unittest.TestCase):
 
+    def Do_Nothing(self, em, secs):
+        print(f"\nProcessing decay for {secs}s...")
+        for _ in range(0, secs * 10):
+            em.start_decay(100) # decay every 100ms
+            time.sleep(0.1)
+        else:
+            print()
+
     def test_1_rpg_relief(self):
-        # A villager fears his village will be destroyed, then feels relief when he realises this will not gonna happen.
+        print("\nTEST 1: A villager fears his village will be destroyed, then feels relief when he realises this will not gonna happen.")
+
         # Test internal emotions.
         em = Gamygdala()
         em.debug = True
 
-        agent = em.create_agent('villager')
+        agent = em.create_agent('Villager')
 
         # Goal creation: agent do not want the village to be destroyed 
         # Goal utility: the value the NPC attributes to this goal becoming True ([-1,1]) where a negative value means the NPC does not want this to happen.
@@ -23,7 +33,7 @@ class TestEmotionEngine(unittest.TestCase):
         #em.set_decay(0.1, em.linear_decay)
 
         # Test gain
-        em.set_gain(10)
+        em.set_gain(5)
 
         # Create first belief event
         # Belief likelihood: the likelihood that this information is true ([0, 1]) where 0 means the belief is disconfirmed and 1 means it is confirmed.
@@ -32,12 +42,7 @@ class TestEmotionEngine(unittest.TestCase):
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
 
         # Decay emotion and test deletion
-        print("\nProcessing decay for 3s... ")
-        for _ in range(0, 30):
-            em.start_decay(100) # decay every 100ms
-            time.sleep(0.1)
-        else:
-            print()
+        self.Do_Nothing(em, 3)
 
         # Create second belief event
         # Here the villager has the belief that the destruction of the village is not gonna to happen (Belief is set to 1 and Congruence to goal = -1, blocking the goal)
@@ -48,9 +53,35 @@ class TestEmotionEngine(unittest.TestCase):
         em.appraise_belief(1.0, agent.name, [goal.name], [-1.0])
 
     def test_2_rpg_pride(self):
-        # The blacksmith was proud of saving the village by providing it with weapons.
+        print("\nTEST 2: The blacksmith was proud of saving the village by providing it with weapons.")
+
         # Test social emotions.
-        pass
+        em = Gamygdala()
+        em.debug = True
+
+        village = em.create_agent('Village')
+        blacksmith = em.create_agent('Blacksmith')
+        em.create_relation(blacksmith.name, village.name, 1.0)
+
+        # Initial step: Blacksmith happy to live in village with gratitude
+        goal_live = em.create_goal_for_agent(blacksmith.name, 'to live', 0.7)
+        self.assertIsNotNone(goal_live)
+        em.set_decay(0.1, em.exponential_decay)
+        em.set_gain(5)
+        print()
+        em.appraise_belief(1.0, village.name, [goal_live.name], [1.0])
+        self.Do_Nothing(em, 3)
+
+        # Second step: brings the belief that the village is in great danger
+        goal_destroyed = em.create_goal_for_agent(blacksmith.name, 'village destroyed', -1.0)
+        self.assertIsNotNone(goal_destroyed)
+        print()
+        em.appraise_belief(0.7, blacksmith.name, [goal_destroyed.name], [1.0])
+        self.Do_Nothing(em, 1)
+ 
+        # Third Step: Blacksmith is able to help the village providing weapons
+        print()
+        em.appraise_belief(1.0, blacksmith.name, [goal_destroyed.name], [-1.0])
 
 if __name__ == "__main__":
     unittest.main()

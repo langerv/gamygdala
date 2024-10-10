@@ -141,7 +141,6 @@ class Gamygdala:
     //Below this is more detailed gamygdala stuff to use it more flexibly.
     ///////////////////////////////////////////////////////////////////////
     '''
-
     def register_agent(self, agent):
         self.agents.append(agent)
         agent.gamygdala_instance = self
@@ -169,14 +168,16 @@ class Gamygdala:
     '''
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Appraise
-    This method is the main emotional interpretation logic entry point. It performs the complete appraisal of a single event (belief) for all agents (affected_agent=None) or for only one agent (affected_agent=True)
-    if affected_agent is set, then the complete appraisal logic is executed including the effect on relations (possibly influencing the emotional state of other agents),
-    but only if the affected agent (the one owning the goal) == affected_agent
+    These methods is the main emotional interpretation logic entry point. It performs the complete appraisal of a single event (belief) for all agents (appraise_all) or for only one agent (appraise_agent)
     this is sometimes needed for efficiency, if you as a game developer know that particular agents can never appraise an event, then you can force Gamygdala to only look at a subset of agents.
     Gamygdala assumes that the affected_agent is indeed the only goal owner affected, that the belief is well-formed, and will not perform any checks, nor use Gamygdala's list of known goals to find other agents that share this goal (!!!)
     @param belief: The current event, in the form of a Belief object, to be appraised
     @param affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    '''
+
+    '''
+    Appraise a specific agent
     '''
     def appraise_agent(self, belief, affected_agent):
         # check only affected_agent (which can be much faster) and does not involve console output nor checks
@@ -189,6 +190,7 @@ class Gamygdala:
 
             # assume affected_agent is the only owner to be considered in this appraisal round.
             owner = affected_agent
+
             self.evaluate_internal_emotion(utility, delta_likelihood, current_goal.likelihood, owner)
             self.agent_actions(owner.name, belief.causal_agent_name, owner.name, desirability, utility, delta_likelihood)
 
@@ -209,6 +211,9 @@ class Gamygdala:
                     if self.debug:
                         print(f'{agent.name} has NO relationship with {owner.name}')
 
+    '''
+    Appraise all agents
+    '''
     def appraise_all(self, belief):
         # check all
         if self.debug:
@@ -238,15 +243,16 @@ class Gamygdala:
                     print(f"Desirability = {desirability:.2f}")
 
                 # now find the owners, and update their emotional states
-                for agent in self.agents:
-                    if agent.has_goal(current_goal.name):
-                        owner = agent
+                for owner in self.agents:
+                    #if agent.has_goal(current_goal.name):
+                    #    owner = agent
 
-                    if self.debug:
-                        print(f'....owned by {owner.name}')
-                            
-                    self.evaluate_internal_emotion(utility, delta_likelihood, current_goal.likelihood, owner)
-                    self.agent_actions(owner.name, belief.causal_agent_name, owner.name, desirability, utility, delta_likelihood)
+                    # Fix 10/10/2024 : evaluate emotions only if agent has a goal 
+                    if owner.has_goal(current_goal.name):
+                        if self.debug:
+                            print(f'....owned by {owner.name}')
+                        self.evaluate_internal_emotion(utility, delta_likelihood, current_goal.likelihood, owner)
+                        self.agent_actions(owner.name, belief.causal_agent_name, owner.name, desirability, utility, delta_likelihood)
 
                     # now check if anyone has a relation to this goal owner, and update the social emotions accordingly.
                     for other_agent in self.agents:
@@ -269,100 +275,6 @@ class Gamygdala:
         if self.debug:
             self.print_all_emotions(True)
 
-    '''
-    def appraise(self, belief, affected_agent=None):
-        if affected_agent is None:
-            # check all
-            if self.debug:
-                print(belief)
-
-            if len(belief.goal_congruences) != len(belief.affected_goal_names):
-                print("Error: the congruence list was not of the same length as the affected goal list")
-                print(belief.goal_congruences)
-                print(belief.affected_goal_names)
-                return False  # The congruence list must be of the same length as the affected goals list.
-
-            if len(self.goals) == 0:
-                print("Warning: no goals registered to Gamygdala, all goals to be considered in appraisal need to be registered.")
-                return False  # No goals registered to GAMYGDALA.
-
-            # Loop through every goal in the list of affected goals by this event.
-            for i, goal_name in enumerate(belief.affected_goal_names):
-                current_goal = self.get_goal_by_name(goal_name)
-
-                if current_goal is not None:
-                    # the goal exists, appraise it
-                    utility = current_goal.utility
-                    delta_likelihood = self.calculate_delta_likelihood(current_goal, belief.goal_congruences[i], belief.likelihood, belief.is_incremental)
-                    desirability = delta_likelihood * utility
-
-                    if self.debug:
-                        print(f"Desirability = {desirability:.2f}")
-
-                    # now find the owners, and update their emotional states
-                    for agent in self.agents:
-                        if agent.has_goal(current_goal.name):
-                            owner = agent
-
-                            if self.debug:
-                                print(f'....owned by {owner.name}')
-                            
-                            self.evaluate_internal_emotion(utility, delta_likelihood, current_goal.likelihood, owner)
-                            self.agent_actions(owner.name, belief.causal_agent_name, owner.name, desirability, utility, delta_likelihood)
-
-                            # now check if anyone has a relation to this goal owner, and update the social emotions accordingly.
-                            for other_agent in self.agents:
-                                relation = other_agent.get_relation(owner.name)
-                                if relation is not None:
-                                    if self.debug:
-                                        print(f'{other_agent.name} has a relationship with {owner.name}')
-                                        print(relation)
-
-                                    # The agent has relationship with the goal owner which has nonzero utility, add relational effects to the relations for agent[k].
-                                    self.evaluate_social_emotion(utility, desirability, delta_likelihood, relation, other_agent)
-
-                                    # also add remorse and gratification if conditions are met within (i.e., agent[k] did something bad/good for owner)
-                                    self.agent_actions(owner.name, belief.causal_agent_name, other_agent.name, desirability, utility, delta_likelihood)
-                                else:
-                                    if self.debug:
-                                        print(f'{other_agent.name} has NO relationship with {owner.name}')
-        else:
-            # check only affected_agent (which can be much faster) and does not involve console output nor checks
-            for i, goal_name in enumerate(belief.affected_goal_names):
-                # Loop through every goal in the list of affected goals by this event.
-                current_goal = affected_agent.get_goal_by_name(goal_name)
-                utility = current_goal.utility
-                delta_likelihood = self.calculate_delta_likelihood(current_goal, belief.goal_congruences[i], belief.likelihood, belief.is_incremental)
-                desirability = delta_likelihood * utility
-
-                # assume affected_agent is the only owner to be considered in this appraisal round.
-                owner = affected_agent
-
-                self.evaluate_internal_emotion(utility, delta_likelihood, current_goal.likelihood, owner)
-                self.agent_actions(owner.name, belief.causal_agent_name, owner.name, desirability, utility, delta_likelihood)
-
-                # now check if anyone has a relation to this goal owner, and update the social emotions accordingly.
-                for agent in self.agents:
-                    relation = agent.get_relation(owner.name)
-                    if relation is not None:
-                        if self.debug:
-                            print(f'{agent.name} has a relationship with {owner.name}')
-                            print(relation)
-
-                        # The agent has relationship with the goal owner which has nonzero utility, add relational effects to the relations for agent[k].
-                        self.evaluate_social_emotion(utility, desirability, delta_likelihood, relation, agent)
-
-                        # also add remorse and gratification if conditions are met within (i.e., agent[k] did something bad/good for owner)
-                        self.agent_actions(owner.name, belief.causal_agent_name, agent.name, desirability, utility, delta_likelihood)
-                    else:
-                        if self.debug:
-                            print(f'{agent.name} has NO relationship with {owner.name}')
-
-        # print the emotions to the console for debugging
-        if self.debug:
-            self.print_all_emotions(True)
-    '''
-
     def calculate_delta_likelihood(self, goal, congruence, belief_likelihood, is_incremental):
         # Defines the change in a goal's likelihood due to the congruence and likelihood of a current event.
         # We cope with two types of beliefs: incremental and absolute beliefs. Incrementals have their likelihood added to the goal, absolute define the current likelihood of the goal
@@ -370,8 +282,8 @@ class Gamygdala:
         old_likelihood = goal.likelihood
         new_likelihood = None
 
-        #if not goal.is_maintenance_goal and (old_likelihood >= 1 or old_likelihood <= -1):
-        if not goal.is_maintenance_goal and (old_likelihood >= 1 or old_likelihood <= 0):
+        # Added bug Fix : if not goal.is_maintenance_goal and (old_likelihood >= 1 or old_likelihood <= -1):
+        if not goal.is_maintenance_goal and old_likelihood is not None and (old_likelihood >= 1 or old_likelihood <= 0):
             return 0
 
         if hasattr(goal, 'calculate_likelihood') and callable(goal.calculate_likelihood):
@@ -379,9 +291,10 @@ class Gamygdala:
             new_likelihood = goal.calculate_likelihood()
         else:
             # Otherwise use the event encoded updates
-            if is_incremental:
+            # Added bug Fix : check for old_likelihood is Not None
+            if is_incremental and old_likelihood is not None:
                 new_likelihood = old_likelihood + belief_likelihood * congruence
-                # Joost fix 07/10/2024 : new_likelihood = max(min(new_likelihood, 1), -1)
+                # Added Joost fix 07/10/2024 : new_likelihood = max(min(new_likelihood, 1), -1)
                 new_likelihood = max(min(new_likelihood, 1), 0)
             else:
                 new_likelihood = (congruence * belief_likelihood + 1.0) / 2.0
@@ -463,8 +376,11 @@ class Gamygdala:
         # The desirability is the desirability from the goal owner's perspective.
         # The agent is the agent getting evaluated (the agent that gets the social emotion added to his emotional state).
         # The relation is a relation object between the agent being evaluated and the goal owner of the affected goal.
-            
-        emotion = Emotion()
+
+        if self.debug:
+            print(f"Social Emotion: Desirability = {desirability:.2f}, Relation.like = {relation.like:.2f}")
+
+        emotion = Emotion(None, None)
             
         if desirability >= 0:
             if relation.like >= 0:

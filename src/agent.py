@@ -158,7 +158,7 @@ class Agent:
 
         for i, relation in enumerate(self.current_relations):
             if agent_name is None or relation.agent_name == agent_name:
-                emotion_str = " ".join(f"{emotion.name}({emotion.intensity})" for emotion in relation.emotion_list)
+                emotion_str = " ".join(f"{emotion.name}({emotion.intensity:.2f})" for emotion in relation.emotion_list)
                 if emotion_str:
                     output += emotion_str
                     found = True
