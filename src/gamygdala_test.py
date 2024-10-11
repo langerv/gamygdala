@@ -11,13 +11,15 @@ class TestEmotionEngine(unittest.TestCase):
         emotions = [emotion for relation in agent.current_relations for emotion in relation.emotion_list]
         self.assertTrue(any(emo.name == name and emo.intensity >= intensity for emo in emotions))
 
+    def assert_pad(self, agent, use_gain=False):
+        pad = agent.get_pad_state(True)
+        print(f"PAD = {pad[0]:.2f}, {pad[1]:.2f}, {pad[2]:.2f}")
+
     def do_something(self, em, secs):
         print(f"\nProcessing decay for {secs}s...")
         for _ in range(0, secs * 10):
             em.start_decay(100) # decay every 100ms
             time.sleep(0.1)
-        else:
-            print()
 
     '''
     Test 1 : test internal emotions.
@@ -49,6 +51,7 @@ class TestEmotionEngine(unittest.TestCase):
         print()
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
         self.assert_emotion(agent, 'fear')
+        self.assert_pad(agent, True)
 
         # Decay emotion and test deletion
         self.do_something(em, 3)
@@ -62,6 +65,7 @@ class TestEmotionEngine(unittest.TestCase):
         em.appraise_belief(1.0, agent.name, [goal.name], [-1.0])
         self.assert_emotion(agent, 'relief')
         self.assert_emotion(agent, 'fear', 0, False)
+        self.assert_pad(agent, True)
 
     '''
     Test 2 : test social emotions.
