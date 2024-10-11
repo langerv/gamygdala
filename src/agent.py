@@ -183,12 +183,11 @@ class Agent:
             if new_intensity < 0 or math.isclose(new_intensity, 0.0, abs_tol=0.001):
                 del self.internal_state[i]
                 if gamygdala_instance.debug:
-                    print(f"\nDeleting {state.name.upper()}")
+                    print(f"Deleting {state.name.upper()}")
             else:
-                #self.internal_state[i].intensity = new_intensity
                 state.intensity = new_intensity
                 if gamygdala_instance.debug:
-                    print(f"\r{state.name.upper()} intensity = {new_intensity:.2f}", end='', flush=True)
+                    print(f"\r{state.name.upper()} intensity = {new_intensity:.2f}... ", end='', flush=True)
 
         # Decay all current relations
         for relation in self.current_relations:
