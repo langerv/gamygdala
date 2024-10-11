@@ -1,7 +1,6 @@
 import unittest
 import time
 from gamygdala import Gamygdala
-from relation import Relation
 
 class TestEmotionEngine(unittest.TestCase):
 
