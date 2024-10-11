@@ -187,7 +187,7 @@ class Agent:
             else:
                 state.intensity = new_intensity
                 if gamygdala_instance.debug:
-                    print(f"\r{state.name.upper()} intensity = {new_intensity:.2f}... ", end='', flush=True)
+                    print(f"\r{state.name.upper()} intensity = {new_intensity:.2f}...      ", end='', flush=True)
 
         # Decay all current relations
         for relation in self.current_relations:

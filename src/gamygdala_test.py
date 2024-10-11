@@ -8,7 +8,8 @@ class TestEmotionEngine(unittest.TestCase):
         self.assertEqual(any(emo.name == name and emo.intensity >= intensity for emo in agent.internal_state), is_in)
 
     def assert_relation(self, agent, name, intensity):
-        pass
+        emotions = [emotion for relation in agent.current_relations for emotion in relation.emotion_list]
+        self.assertTrue(any(emo.name == name and emo.intensity >= intensity for emo in emotions))
 
     def do_something(self, em, secs):
         print(f"\nProcessing decay for {secs}s...")
@@ -83,6 +84,8 @@ class TestEmotionEngine(unittest.TestCase):
         print()
         em.appraise_belief(1.0, village.name, [goal_live.name], [1.0])
         self.assert_emotion(blacksmith, 'gratitude')
+        self.assert_relation(blacksmith, 'happy-for', 0.7)
+        self.assert_relation(blacksmith, 'gratitude', 0.7)
 
         self.do_something(em, 3)
 
@@ -99,6 +102,8 @@ class TestEmotionEngine(unittest.TestCase):
         em.appraise_belief(1.0, blacksmith.name, [goal_destroyed.name], [-1.0])
         self.assert_emotion(blacksmith, 'happy-for')
         self.assert_emotion(blacksmith, 'gratification')
+        self.assert_relation(blacksmith, 'happy-for', 0.8)
+        self.assert_relation(blacksmith, 'gratification', 0.8)
 
 if __name__ == "__main__":
     unittest.main()
