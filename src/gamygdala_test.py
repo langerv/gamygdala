@@ -15,13 +15,14 @@ class TestEmotionEngine(unittest.TestCase):
         pad = agent.get_pad_state(True)
         print(f"PAD = {pad[0]:.2f}, {pad[1]:.2f}, {pad[2]:.2f}")
 
-    def do_something(self, em, secs, decay_ms=100):
+    def do_something(self, em, secs, decay=0.1):
         print(f"\nProcessing decay for {secs}s...")
         start_time = time.time()
         end_time = start_time + secs
+        decay_ms = decay * 1000
         while time.time() < end_time:
-            em.start_decay(decay_ms)  # decay every 100ms
-            time.sleep(0.1)
+            em.start_decay(decay_ms)  # decay every decay_ms
+            time.sleep(decay)
 
     '''
     Test 1 : test internal emotions.
