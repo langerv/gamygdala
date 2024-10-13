@@ -15,10 +15,12 @@ class TestEmotionEngine(unittest.TestCase):
         pad = agent.get_pad_state(True)
         print(f"PAD = {pad[0]:.2f}, {pad[1]:.2f}, {pad[2]:.2f}")
 
-    def do_something(self, em, secs):
+    def do_something(self, em, secs, decay_ms=100):
         print(f"\nProcessing decay for {secs}s...")
-        for _ in range(0, secs * 10):
-            em.start_decay(100) # decay every 100ms
+        start_time = time.time()
+        end_time = start_time + secs
+        while time.time() < end_time:
+            em.start_decay(decay_ms)  # decay every 100ms
             time.sleep(0.1)
 
     '''
