@@ -21,10 +21,11 @@ class Gamygdala:
         self.debug = False
 
     '''
-    * A facilitator method that creates a new Agent and registers it for you
-    * @method create_agent
-    * @param {String} agent_name The agent with agentName is created
-    * @return {Agent} An agent reference to the newly created agent
+    Method create_agent
+    A facilitator method that creates a new Agent and registers it for you
+    Params:
+    * agent_name: The agent with agentName is created
+    return {Agent}: An agent reference to the newly created agent
     '''
     def create_agent(self, agent_name):
         agent = Agent(agent_name)
@@ -32,15 +33,16 @@ class Gamygdala:
         return agent
 
     '''
-    * A facilitator method to create a goal for a particular agent, that also registers the goal to the agent and gamygdala.
-    * This method is thus handy if you want to keep all gamygdala logic internal to Gamygdala.
-    * However, if you want to do more sophisticated stuff (e.g., goals for multiple agents, keep track of your own list of goals to also remove them, appraise events per agent without the need for gamygdala to keep track of goals, etc...) this method will probably be doing too much.
-    * @method create_goal_for_agent
-    * @param {String} agent_name The agent's name to which the newly created goal has to be added.
-    * @param {String} goal_name The goal's name.
-    * @param {double} goal_utility The goal's utility.
-    * @param {boolean} is_maintenance_goal Defines if the goal is a maintenance goal or not [optional]. The default is that the goal is an achievement goal, i.e., a goal that once it's likelihood reaches true (1) or false (-1) stays that way.
-    * @return {Goal} a goal reference to the newly created goal.
+    method create_goal_for_agent
+    A facilitator method to create a goal for a particular agent, that also registers the goal to the agent and gamygdala.
+    This method is thus handy if you want to keep all gamygdala logic internal to Gamygdala.
+    However, if you want to do more sophisticated stuff (e.g., goals for multiple agents, keep track of your own list of goals to also remove them, appraise events per agent without the need for gamygdala to keep track of goals, etc...) this method will probably be doing too much.
+    Params:
+    * agent_name: The agent's name to which the newly created goal has to be added.
+    * goal_name: The goal's name.
+    * goal_utility: The goal's utility.
+    * is_maintenance_goal: Defines if the goal is a maintenance goal or not [optional]. The default is that the goal is an achievement goal, i.e., a goal that once it's likelihood reaches true (1) or false (-1) stays that way.
+    return {Goal} a goal reference to the newly created goal.
     '''
     def create_goal_for_agent(self, agent_name, goal_name, goal_utility, is_maintenance_goal=False):
         temp_agent = self.get_agent_by_name(agent_name)
@@ -63,12 +65,13 @@ class Gamygdala:
             return None
 
     '''
-    * A facilitator method to create a relation between two agents. Both source and target have to exist and be registered with this Gamygdala instance.
-    * This method is thus handy if you want to keep all gamygdala logic internal to Gamygdala.
-    * @method create_relation
-    * @param {String} source_name The agent who has the relation (the source)
-    * @param {String} target_name The agent who is the target of the relation (the target)
-    * @param {double} relation The relation (between -1 and 1).
+    method create_relation
+    A facilitator method to create a relation between two agents. Both source and target have to exist and be registered with this Gamygdala instance.
+    This method is thus handy if you want to keep all gamygdala logic internal to Gamygdala.
+    Params:
+    * source_name: The agent who has the relation (the source)
+    * target_name: The agent who is the target of the relation (the target)
+    * relation: The relation (between -1 and 1).
     '''
     def create_relation(self, source_name, target_name, relation):
         source = self.get_agent_by_name(source_name)
@@ -79,14 +82,15 @@ class Gamygdala:
             print(f'Error: cannot relate {source} to {target} with intensity {relation}')
 
     '''
-    * A facilitator method to appraise an event. It takes in the same as what the new Belief(...) takes in, creates a belief and appraises it for all agents that are registered.
-    * This method is thus handy if you want to keep all gamygdala logic internal to Gamygdala.
-    * @method appraise_belief
-    * @param {double} likelihood The likelihood of this belief to be true.
-    * @param {String} causal_agent_name The agent's name of the causal agent of this belief.
-    * @param {String[]} affected_goal_names An array of affected goals' names.
-    * @param {double[]} goal_congruences An array of the affected goals' congruences (i.e., the extend to which this event is good or bad for a goal [-1,1]).
-    * @param {boolean} [is_incremental] Incremental evidence enforces gamygdala to see this event as incremental evidence for (or against) the list of goals provided, i.e, it will add or subtract this belief's likelihood*congruence from the goal likelihood instead of using the belief as "state" defining the absolute likelihood
+    method appraise_belief
+    A facilitator method to appraise an event. It takes in the same as what the new Belief(...) takes in, creates a belief and appraises it for all agents that are registered.
+    This method is thus handy if you want to keep all gamygdala logic internal to Gamygdala.
+    Params:
+    * likelihood: The likelihood of this belief to be true.
+    * causal_agent_name: The agent's name of the causal agent of this belief.
+    * affected_goal_names: An array of affected goals' names.
+    * goal_congruences: An array of the affected goals' congruences (i.e., the extend to which this event is good or bad for a goal [-1,1]).
+    * is_incremental: Incremental evidence enforces gamygdala to see this event as incremental evidence for (or against) the list of goals provided, i.e, it will add or subtract this belief's likelihood*congruence from the goal likelihood instead of using the belief as "state" defining the absolute likelihood
     '''
     def appraise_belief(self, likelihood, causal_agent_name, affected_goal_names, goal_congruences, is_incremental=False):
         temp_belief = Belief(likelihood, causal_agent_name, affected_goal_names, goal_congruences, is_incremental)
@@ -94,9 +98,10 @@ class Gamygdala:
         self.appraise_all(temp_belief)
 
     '''
-    * Facilitator method to print all emotional states to the console.	
-    * @method print_all_emotions
-    * @param {boolean} gain Whether you want to print the gained (true) emotional states or non-gained (false).
+    method print_all_emotions
+    Facilitator method to print all emotional states to the console.	
+    Param:
+    * gain: Whether you want to print the gained (true) emotional states or non-gained (false).
     '''
     def print_all_emotions(self, gain):
         for agent in self.agents:
@@ -104,33 +109,36 @@ class Gamygdala:
             agent.print_relations(None)
 
     '''
-    * Facilitator to set the gain for the whole set of agents known to Gamygdala.
-    * For more realistic, complex games, you would typically set the gain for each agent type separately, to finetune the intensity of the response.
-    * @method set_gain
-    * @param {double} gain The gain value [0 and 20].
+    method set_gain
+    Facilitator to set the gain for the whole set of agents known to Gamygdala.
+    For more realistic, complex games, you would typically set the gain for each agent type separately, to finetune the intensity of the response.
+    Param:
+    * gain: The gain value [0 and 20].
     '''
     def set_gain(self, gain):
         for agent in self.agents:
             agent.set_gain(gain)
 
     '''
-    * Sets the decay factor and function for emotional decay.
-    * It sets the decay factor and type for emotional decay, so that an emotion will slowly get lower in intensity.
-    * Whenever decayAll is called, all emotions for all agents are decayed according to the factor and function set here.
-    * @method set_decay
-    * @param {double} decay_factor The decay factor used. A factor of 1 means no decay, a factor 
-    * @param {function} decay_function The decay function to be used. Choose between linearDecay or exponentialDecay (see the corresponding methods)
+    method set_decay
+    Sets the decay factor and function for emotional decay.
+    It sets the decay factor and type for emotional decay, so that an emotion will slowly get lower in intensity.
+    Whenever decayAll is called, all emotions for all agents are decayed according to the factor and function set here.
+    Params:
+    * decay_factor: The decay factor used. A factor of 1 means no decay, a factor 
+    * decay_function: The decay function to be used. Choose between linearDecay or exponentialDecay (see the corresponding methods)
     '''
     def set_decay(self, decay_factor, decay_function):
         self.decay_function = decay_function
         self.decay_factor = decay_factor
 
     '''
-    * This starts the actual gamygdala decay process. It simply calls decayAll() at the specified interval.
-    * The time_ms only defines the interval at which to decay, not the rate over time, that is defined by the decay_factor and function.
-    * For more complex games (e.g., games where agents are not active when far away from the player, or games that do not need all agents to decay all the time) you should yourself choose when to decay agents individually.
-    * To do so you can simply call the agent.decay() method (see the agent class).
-    * @param {int} time_ms The "framerate" of the decay in milliseconds. 
+    This starts the actual gamygdala decay process. It simply calls decayAll() at the specified interval.
+    The time_ms only defines the interval at which to decay, not the rate over time, that is defined by the decay_factor and function.
+    For more complex games (e.g., games where agents are not active when far away from the player, or games that do not need all agents to decay all the time) you should yourself choose when to decay agents individually.
+    To do so you can simply call the agent.decay() method (see the agent class).
+    Param:
+    * time_ms: The "framerate" of the decay in milliseconds. 
     '''
     def start_decay(self, time_ms):
         import threading
@@ -171,8 +179,9 @@ class Gamygdala:
     These methods is the main emotional interpretation logic entry point. It performs the complete appraisal of a single event (belief) for all agents (appraise_all) or for only one agent (appraise_agent)
     this is sometimes needed for efficiency, if you as a game developer know that particular agents can never appraise an event, then you can force Gamygdala to only look at a subset of agents.
     Gamygdala assumes that the affected_agent is indeed the only goal owner affected, that the belief is well-formed, and will not perform any checks, nor use Gamygdala's list of known goals to find other agents that share this goal (!!!)
-    @param belief: The current event, in the form of a Belief object, to be appraised
-    @param affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
+    Params:
+    * belief: The current event, in the form of a Belief object, to be appraised
+    * affected_agent: The reference to the agent who needs to appraise the event. If given, this is the appraisal perspective (see explanation above).
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     '''
 
