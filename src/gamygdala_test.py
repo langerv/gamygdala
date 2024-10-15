@@ -1,4 +1,5 @@
 import unittest
+import math
 import time
 from gamygdala import Gamygdala
 
@@ -13,7 +14,24 @@ class TestEmotionEngine(unittest.TestCase):
 
     def assert_pad(self, agent, use_gain=False):
         pad = agent.get_pad_state(True)
-        print(f"PAD = {pad[0]:.2f}, {pad[1]:.2f}, {pad[2]:.2f}")
+        temp = self.get_temperament(pad)
+        assert temp != 'Unknown', f"Temperament for {agent.name} is Unknown"        
+        print(f"{agent.name} is {temp.upper()} ; (PAD state = {','.join(f'{p:.2f}' for p in pad[:3])})")
+
+    def get_temperament(self, pad):
+        sign = lambda x: math.copysign(1, x)
+        sign_P, sign_A, sign_D = map(sign, pad[:3])
+        temperament_map = {
+            (1, 1, 1): 'Exuberant',
+            (1, 1, -1): 'Dependant',
+            (-1, -1, 1): 'Disdainful',
+            (-1, -1, -1): 'Bored',
+            (1, -1, 1): 'Relaxed',
+            (1, -1, -1): 'Docile',
+            (-1, 1, 1): 'Hostile',
+            (-1, 1, -1): 'Anxious'
+        }
+        return temperament_map.get((sign_P, sign_A, sign_D), 'Unknown')
 
     def do_something(self, em, secs, decay=0.1):
         print(f"\nProcessing decay for {secs}s...")
@@ -91,6 +109,7 @@ class TestEmotionEngine(unittest.TestCase):
         print()
         em.appraise_belief(1.0, village.name, [goal_live.name], [1.0])
         self.assert_emotion(blacksmith, 'gratitude')
+        self.assert_pad(blacksmith, True)
         self.assert_relation(blacksmith, 'happy-for', 0.7)
         self.assert_relation(blacksmith, 'gratitude', 0.7)
 
@@ -102,6 +121,7 @@ class TestEmotionEngine(unittest.TestCase):
         print()
         em.appraise_belief(0.7, blacksmith.name, [goal_destroyed.name], [1.0])
         self.assert_emotion(blacksmith, 'pity')
+        self.assert_pad(blacksmith, True)
         self.do_something(em, 3)
  
         # Third Step: Blacksmith is able to help the village providing weapons
@@ -109,6 +129,7 @@ class TestEmotionEngine(unittest.TestCase):
         em.appraise_belief(1.0, blacksmith.name, [goal_destroyed.name], [-1.0])
         self.assert_emotion(blacksmith, 'happy-for')
         self.assert_emotion(blacksmith, 'gratification')
+        self.assert_pad(blacksmith, True)
         self.assert_relation(blacksmith, 'happy-for', 0.8)
         self.assert_relation(blacksmith, 'gratification', 0.8)
 
