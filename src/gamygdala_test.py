@@ -13,7 +13,7 @@ class TestEmotionEngine(unittest.TestCase):
         self.assertTrue(any(emo.name == name and emo.intensity >= intensity for emo in emotions))
 
     def assert_pad(self, agent, use_gain=False):
-        pad = agent.get_pad_state(True)
+        pad = agent.get_pad_state(use_gain)
         temp = self.get_temperament(pad)
         assert temp != 'Unknown', f"Temperament for {agent.name} is Unknown"        
         print(f"{agent.name} is {temp.upper()} ; (PAD state = {','.join(f'{p:.2f}' for p in pad[:3])})")
@@ -23,7 +23,7 @@ class TestEmotionEngine(unittest.TestCase):
         sign_P, sign_A, sign_D = map(sign, pad[:3])
         temperament_map = {
             (1, 1, 1): 'Exuberant',
-            (1, 1, -1): 'Dependant',
+            (1, 1, -1): 'Dependent',
             (-1, -1, 1): 'Disdainful',
             (-1, -1, -1): 'Bored',
             (1, -1, 1): 'Relaxed',
@@ -55,33 +55,29 @@ class TestEmotionEngine(unittest.TestCase):
 
         # Goal creation: agent do not want the village to be destroyed 
         # Goal utility: the value the NPC attributes to this goal becoming True ([-1,1]) where a negative value means the NPC does not want this to happen.
-        # Utility negative but > -1 (more important that losing life for example)
         goal = em.create_goal_for_agent(agent.name, 'village destroyed', -0.9)
         self.assertIsNotNone(goal)
 
-        # Test decay for 2s
+        # Set decay for 2s
         em.set_decay(0.1, em.exponential_decay)
         #em.set_decay(0.1, em.linear_decay)
 
-        # Test gain
+        # Set gain
         em.set_gain(5)
 
         # Create first belief event
         # Belief likelihood: the likelihood that this information is true ([0, 1]) where 0 means the belief is disconfirmed and 1 means it is confirmed.
-        # Congruence : a number ([-1,1]) where negative values mean this belief is blocking the goal and positive values means this belief facilitates the goal.
+        # Congruence: a number ([-1,1]) where negative values mean this belief is blocking the goal and positive values means this belief facilitates the goal.
         print()
         em.appraise_belief(0.6, agent.name, [goal.name], [1.0])
         self.assert_emotion(agent, 'fear')
         self.assert_pad(agent, True)
 
-        # Decay emotion and test deletion
+        # Decay emotion and test deletion (see below)
         self.do_something(em, 3)
 
         # Create second belief event
         # Here the villager has the belief that the destruction of the village is not gonna to happen (Belief is set to 1 and Congruence to goal = -1, blocking the goal)
-        # If the likelihood of en event = 0, then it will have no effect. 
-        # Here we configure an event to be very likely (e.g. 1 = definite), with congruence to the goal of -1.
-        # That way, the goal likelyhood will be updated towards the goal not being met, and as the goal has a utility of -0.9, that should generate relief.
         print()
         em.appraise_belief(1.0, agent.name, [goal.name], [-1.0])
         self.assert_emotion(agent, 'relief')
