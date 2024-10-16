@@ -8,8 +8,8 @@ A belief is created and fed into a Gamygdala instance (method Gamygdala.appraise
 Params:
 * likelihood: The likelihood of this belief to be true.
 * causal_agent_name: The agent's name of the causal agent of this belief.
-* affected_goal_names An array of affected goals' names.
-* goal_congruences An array of the affected goals' congruences (i.e., the extend to which this event is good or bad for a goal [-1,1]).
+* affected_goal_names: An array of affected goals' names.
+* goal_congruences: An array of the affected goals' congruences (i.e., the extend to which this event is good or bad for a goal [-1,1]).
 * is_incremental: Incremental evidence enforces gamygdala to see this event as incremental evidence for (or against) the list of goals provided, i.e, it will add or subtract this belief's likelihood*congruence from the goal likelihood instead of using the belief as "state" defining the absolute likelihood
 '''
 class Belief:

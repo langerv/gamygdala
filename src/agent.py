@@ -178,8 +178,8 @@ class Agent:
         # Use a for loop with enumerate to iterate over internal states
         for i, state in enumerate(self.internal_state):
             new_intensity = gamygdala_instance.decay_function(state.intensity)
-
-            if new_intensity < 0 or math.isclose(new_intensity, 0.0, abs_tol=0.001):
+            
+            if math.isclose(new_intensity, 0.0, abs_tol=0.001):
                 del self.internal_state[i]
                 if gamygdala_instance.debug:
                     print(f"Deleting {state.name.upper()}")
